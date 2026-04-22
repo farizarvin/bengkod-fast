@@ -25,7 +25,6 @@ if model_data is not None:
     daftar_fitur = model_data.get('selected_features', [])
     
     # 3. Definisi tipe input untuk masing-masing fitur 
-    # (Digunakan untuk membangun form agar sesuai)
     fitur_input_types = {
         'Academic Pressure': {'type': 'number', 'min': 0.0, 'max': 5.0, 'default': 3.0},
         'Have you ever had suicidal thoughts ?': {'type': 'category', 'options': ['Yes', 'No']},
@@ -47,7 +46,6 @@ if model_data is not None:
         
         input_pengguna = {}
         
-        # Looping dinamis untuk membuat kolom input sesuai definisi di atas
         for fitur in daftar_fitur:
             config = fitur_input_types.get(fitur)
             if config:
@@ -64,10 +62,8 @@ if model_data is not None:
                         options=config['options']
                     )
             else:
-                # Fallback jika fitur tidak didefinisikan secara khusus
                 input_pengguna[fitur] = st.text_input(label=f"Masukkan {fitur}")
                 
-        # Tombol action di dalam form
         tombol_submit = st.form_submit_button("Jalankan Prediksi")
         
         # 5. Pemrosesan Hasil dari Input Prediksi
@@ -94,18 +90,34 @@ if model_data is not None:
                 
                 # Menerapkan Scaler jika tersedia
                 if scaler is not None:
-                    # Mengubah dataframe menjadi array yang terskala lalu kembalikan ke format dataframe
-                    fitur_df_scaled = scaler.transform(fitur_df)
-                    fitur_df = pd.DataFrame(fitur_df_scaled, columns=fitur_df.columns)
+                    # Dapatkan daftar kolom yang diekspektasikan oleh scaler
+                    scaler_cols = list(scaler.feature_names_in_)
+                    # Buat dataframe sementara khusus untuk scaler
+                    scaler_df = pd.DataFrame(columns=scaler_cols)
+                    
+                    # Isi dengan data dari input pengguna, sisanya isi dengan 0 (dummy)
+                    for col in scaler_cols:
+                        if col in fitur_df.columns:
+                            scaler_df.loc[0, col] = fitur_df.loc[0, col]
+                        else:
+                            scaler_df.loc[0, col] = 0.0
+                            
+                    # Jalankan proses transform
+                    scaler_df_scaled = scaler.transform(scaler_df)
+                    scaler_df_scaled = pd.DataFrame(scaler_df_scaled, columns=scaler_cols)
+                    
+                    # Update kembali nilai di fitur_df (hanya yang beririsan)
+                    for col in scaler_cols:
+                        if col in fitur_df.columns:
+                            fitur_df[col] = scaler_df_scaled[col]
                 
                 try:
-                    # Jalankan prediksi menggunakan model (misal: best_estimator_ dari XGBoost)
+                    # Jalankan prediksi menggunakan model
                     hasil = model.predict(fitur_df)
                     
                     # Tampilkan hasil
                     st.success("Proses Prediksi Berhasil!")
                     st.write("### Hasil Prediksi Kelas (Depression):")
-                    # Jika 0 berarti Tidak, 1 berarti Ya (atau sesuaikan dengan format output Anda)
                     if str(hasil[0]) == "1" or str(hasil[0]) == "1.0":
                         st.title("Depresi (1)")
                     else:
