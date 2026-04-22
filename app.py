@@ -161,20 +161,16 @@ if model_data is not None:
                     st.progress(int(prob_depresi) // 1)
                     
                     st.write("---")
-                    st.write("**Visualisasi Tingkat Stres & Kepuasan:**")
+                    st.write("**Tingkat Kepentingan Fitur (Feature Importance):**")
                     
-                    # Membuat DataFrame khusus untuk Bar Chart visualisasi tekanan
-                    vis_data = pd.DataFrame({
-                        'Faktor': ['Academic Pressure', 'Financial Stress', 'Study Satisfaction'],
-                        'Skor': [
-                            input_pengguna.get('Academic Pressure', 0), 
-                            input_pengguna.get('Financial Stress', 0), 
-                            input_pengguna.get('Study Satisfaction', 0)
-                        ]
-                    }).set_index('Faktor')
-                    
-                    st.bar_chart(vis_data, height=200)
-                    st.caption("Skor tinggi pada tekanan akademik dan finansial dapat berpotensi memicu depresi. Sebaliknya, kepuasan belajar yang baik adalah indikator positif.")
+                    if hasattr(model, "feature_importances_") and hasattr(model, "feature_names_in_"):
+                        importance_df = pd.DataFrame({
+                            'Fitur': model.feature_names_in_,
+                            'Kepentingan': model.feature_importances_
+                        }).sort_values(by='Kepentingan', ascending=False).set_index('Fitur')
+                        
+                        st.bar_chart(importance_df, height=350)
+                        st.caption("Grafik di atas (Feature Importance) menunjukkan variabel apa saja yang memberikan pengaruh terbesar pada model dalam menentukan tingkat kerentanan depresi Anda.")
                     
                 except Exception as error_msg:
                     st.error(f"Terjadi error saat memprediksi data: {error_msg}")
