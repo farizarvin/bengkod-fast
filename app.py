@@ -26,13 +26,13 @@ if model_data is not None:
     
     # 3. Definisi tipe input untuk masing-masing fitur 
     fitur_input_types = {
-        'Academic Pressure': {'type': 'number', 'min': 0.0, 'max': 5.0, 'default': 3.0},
+        'Academic Pressure': {'type': 'number', 'min': 0, 'max': 5, 'default': 3},
         'Have you ever had suicidal thoughts ?': {'type': 'category', 'options': ['Yes', 'No']},
         'Financial Stress': {'type': 'number', 'min': 1.0, 'max': 5.0, 'default': 3.0},
-        'Age': {'type': 'number', 'min': 10.0, 'max': 100.0, 'default': 25.0},
-        'Work/Study Hours': {'type': 'number', 'min': 0.0, 'max': 24.0, 'default': 5.0},
+        'Age': {'type': 'number', 'min': 10, 'max': 100, 'default': 25},
+        'Work/Study Hours': {'type': 'number', 'min': 0, 'max': 24, 'default': 5},
         'Dietary Habits': {'type': 'category', 'options': ['Healthy', 'Moderate', 'Unhealthy']},
-        'Study Satisfaction': {'type': 'number', 'min': 0.0, 'max': 5.0, 'default': 3.0},
+        'Study Satisfaction': {'type': 'number', 'min': 0, 'max': 5, 'default': 3},
         'Sleep Duration': {'type': 'category', 'options': ['Less than 5 hours', '5-6 hours', '7-8 hours', 'More than 8 hours']},
         'Family History of Mental Illness': {'type': 'category', 'options': ['Yes', 'No']},
         'CGPA': {'type': 'number', 'min': 0.0, 'max': 10.0, 'default': 7.0}
@@ -52,9 +52,9 @@ if model_data is not None:
                 if config['type'] == 'number':
                     input_pengguna[fitur] = st.number_input(
                         label=f"Masukkan {fitur}", 
-                        min_value=float(config['min']), 
-                        max_value=float(config['max']), 
-                        value=float(config['default'])
+                        min_value=config['min'], 
+                        max_value=config['max'], 
+                        value=config['default']
                     )
                 elif config['type'] == 'category':
                     input_pengguna[fitur] = st.selectbox(
